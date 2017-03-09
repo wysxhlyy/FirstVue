@@ -8,6 +8,10 @@
           {{item.label}}
         </li>
       </ul>
+
+      <p v-if="childWords!=''">children tell me:{{childWords}}</p>
+      <component-a msgfromfather='Msg from App.vue in the componentA!' v-on:childtellme='listen'></component-a>
+      <!-- 必须转成小写,componentA=>component-a -->
   </div>
 
 
@@ -15,23 +19,19 @@
 </template>
 
 <script>
+import Store from './store'
+import componentA from './components/componentA'
+
 export default {
   data:function(){
     return{
       title:'<a>This is a todo list</a>',
-      items:[
-        {
-          label: 'coding',
-          isFinished:false
-        },
-        {
-          label:'walking',
-          isFinished:false
-        }
-      ],
-      newItem:''
+      items:Store.fetch()||[],
+      newItem:'',
+      childWords:''
     }
   },
+  components:{componentA},
   methods:{
     finish:function(item){
       item.isFinished=!item.isFinished;
@@ -42,6 +42,17 @@ export default {
         isFinished:false
       })
       this.newItem='';
+    },
+    listen:function(msg){
+      this.childWords=msg;
+    },
+
+  },
+  watch:{
+    items:{
+      handler:function(items){
+        Store.save(items);
+      }
     }
   }
 }
@@ -59,4 +70,14 @@ export default {
 .finished{
   text-decoration: underline;
 }
+
+ul{
+  margin-left: 130px;
+  position:absolute;
+}
+
+p{
+  margin-top: 200px;
+}
+
 </style>
